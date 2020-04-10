@@ -12,7 +12,7 @@ class kmeans:
 
 	# Distance function (euclidian)
 	def distance(self, point):
-		return np.argmin(np.sqrt(np.sum((point - self.centroids)**2, axis=1)))
+		return np.argmin(np.sqrt(np.sum((point - self.centroids)**2, axis=1)))\
 
 	# Update function
 	def update_centroid(self, data):
@@ -28,9 +28,13 @@ class kmeans:
 		self.intial_centroids = self.centroids
 		self.prev_label, self.labels = None, np.zeros(len(data))
 
+		print(self.centroids)
+
 		while not np.all(self.labels == self.prev_label) :
 			self.prev_label = self.labels
 			self.labels = self.predict(data)
 			self.update_centroid(data)
+		
+		print(self.centroids)
 
 		return self
