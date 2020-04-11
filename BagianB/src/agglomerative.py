@@ -9,7 +9,7 @@ from numpy.matlib import repmat, repeat
 '''
 class agglomerative:
   # Constructor
-  def __init__(self, n_clusters=1):
+  def __init__(self, n_clusters=1, linkage="complete"):
     self.cluster = n_clusters
 
   # Distance function (euclidean)
@@ -40,49 +40,48 @@ class agglomerative:
   
   # Find minimum distance in matrix
   def findMinimumDistance(self, distMat):
-    i, j = np.where(distMat == np.min(distMat[np.nonzero(distMat)]))
-    return (i, j)
+    minDistance = float("inf")
+    idxI = -1
+    idxJ = -1
+    for i in range(len(distMat)):
+      for j in range((i + 1), len(distMat)):
+        if distMat[i][j] < minDistance:
+          minDistance = distMat[i][j]
+          idxI, idxJ = i, j
+    return idxI, idxJ
+  
+  # Merging elements
+  def mergeElements(self, i, j):
+    self.centroids[i].extend(self.centroids[j])
+    self.labels[i].extend(self.labels[j])
+    del self.centroids[j]
+    del self.labels[j]
+  
+  # Fit function
+  def fit(self, data):
+    # Initialize centroids and labels
+    self.centroids = []
+    self.labels = []
+    self.resultLabels = np.zeros(len(data))
+    for i in range(len(data)):
+      self.centroids.append([data[i]])
+      self.labels.append([i])
 
-# TESTING
-from sklearn import datasets
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import silhouette_score
-from sklearn.metrics.cluster import fowlkes_mallows_score
+    self.initial_centroids = self.centroids
+    self.prev_label = None
 
-iris = datasets.load_iris()
-data = iris.data
-target = iris.target
-
-clusters = agglomerative(n_clusters=3)
-clusterData = []
-
-for i in range(len(data)):
-  clusterData.append([data[i]])
-
-distMat = clusters.createDistanceMatrix(clusterData)
-print(distMat)
-
-
-# TESTING
-# from sklearn import datasets
-# from sklearn.cluster import AgglomerativeClustering
-# from sklearn.metrics import silhouette_score
-# from sklearn.metrics.cluster import fowlkes_mallows_score
-
-# iris = datasets.load_iris()
-# data = iris.data
-# target = iris.target
-
-
-
-# clusters = agglomerative(n_clusters=3)
-# clusterData = cp.deepcopy(data)
-
-# for (i in range(len(clusterData))):
-
-# distMat = clusters.createDistanceMatrix(data)
-# minCluster, minClusterMirror = clusters.findMinimumDistance(distMat)
-# clusterMergedA = minCluster[0]
-# clusterMergedB = minCluster[1]
-# print(clusterMergedA)
-# print(clusterMergedB)
+    # Executing learning
+    while(len(self.centroids) > self.cluster):
+      self.prev_label = self.labels
+      distMat = self.createDistanceMatrix(self.centroids)
+      idxI, idxJ = self.findMinimumDistance(distMat)
+      self.mergeElements(idxI, idxJ)
+    
+    # Convert labels to result labels
+    # i = label clusters
+    # j = elements in the label clusters
+    for i in range(self.cluster):
+      for j in range(len(self.centroids[i])):
+        self.resultLabels[self.labels[i][j]] = i
+    
+    return self
