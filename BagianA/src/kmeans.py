@@ -8,8 +8,10 @@ from scipy.spatial import distance_matrix
 '''
 class kmeans:
 	# Constructor
-	def __init__(self, n_clusters=1):
+	# Unless given, assume no max iteration, hence inf by default
+	def __init__(self, n_clusters=1, max_iteration = float("inf")):
 		self.cluster = n_clusters
+		self.max_iteration = max_iteration
 
 	# Distance function (euclidian)
 	def distance(self, point):
@@ -29,9 +31,17 @@ class kmeans:
 		self.intial_centroids = self.centroids
 		self.prev_label, self.labels = None, np.zeros(len(data))
 
-		while not np.all(self.labels == self.prev_label) :
+		iteration = 0
+		previous_and_current_label_differs = True
+		iteration_less_than_max_iteration = True
+		while (previous_and_current_label_differs) and (iteration_less_than_max_iteration) :
 			self.prev_label = self.labels
 			self.labels = self.predict(data)
 			self.update_centroid(data)
+
+			# update stopping condition
+			previous_and_current_label_differs = not np.all(self.labels == self.prev_label)
+			iteration += 1
+			iteration_less_than_max_iteration = iteration < self.max_iteration
 
 		return self
