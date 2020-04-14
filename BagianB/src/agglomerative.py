@@ -8,6 +8,9 @@ from numpy.matlib import repmat, repeat
   - n_clusters : The number of clusters needed
 '''
 class agglomerative:
+  '''
+  Basic functions
+  '''
   # Constructor
   def __init__(self, n_clusters=1, linkage="complete"):
     self.cluster = n_clusters
@@ -17,7 +20,10 @@ class agglomerative:
   def distance(self, data, target):
     return np.sqrt(np.sum((data - target)**2, axis=0))
 
-  # Get maximum distance from each cluster (complete link)
+  '''
+  Linkage
+  '''
+  # Complete Linkage
   def completeLingkageDistance(self, data, target):
     maxDistance = 0
     for i in range(len(data)):
@@ -27,9 +33,9 @@ class agglomerative:
           maxDistance = currDistance
     return maxDistance
 
-  # Get the minimum distance from each cluster (single link)
+  # Single Linkage
   def singleLinkageDistance(self, data, target):
-    minDistance = 0
+    minDistance = float("inf")
     for i in range(len(data)):
       for j in range(len(target)):
         currDistance = self.distance(data[i], target[j])
@@ -37,6 +43,38 @@ class agglomerative:
           minDistance = currDistance
     return minDistance
 
+  # Average linkage
+  def averageLinkageDistance(self, data, target):
+    totalDistance = 0
+    for i in range(len(data)):
+      for j in range(len(target)):
+        print(self.distance(data[i], target[j]))
+        totalDistance += self.distance(data[i], target[j])
+    
+    return totalDistance / (len(data) * len(target))
+  
+  # Average group linkage
+  def averageGroupLinkageDistance(self, data, target):
+    totalDistanceI = data[0]
+    for i in range(1, len(data)):
+      for j in range(len(data[i])):
+        totalDistanceI[j] += data[i][j]
+    for i in range(len(data[0])):
+      totalDistanceI[i] /= len(data)
+    
+    totalDistanceJ = target[0]
+    for i in range(1, len(target)):
+      for j in range(len(target[i])):
+        totalDistanceJ[j] += target[i][j]
+    for i in range(len(target[0])):
+      totalDistanceI[i] /= len(target)
+      
+    return self.distance(totalDistanceI, totalDistanceJ)
+
+
+  '''
+  Fitting functinos
+  '''
   # Distance function (euclidean)
   def createDistanceMatrix(self, data):
     resultArray = []
@@ -48,7 +86,17 @@ class agglomerative:
         if (j == i):
           tempArray.append(0)
         else:
-          tempArray.append(self.completeLingkageDistance(data[i], data[j]))
+          if (self.linkage == "complete"):
+            tempArray.append(self.completeLingkageDistance(data[i], data[j]))
+          elif (self.linkage == "single"):
+            tempArray.append(self.singleLinkageDistance(data[i], data[j]))
+          elif (self.linkage == "average"):
+            tempArray.append(self.averageLinkageDistance(data[i], data[j]))
+          elif (self.linkage == "average_group"):
+            tempArray.append(self.averageGroupLinkageDistance(data[i], data[j]))
+          else:
+            print("Invalid linkage")
+          
       resultArray.append(tempArray)
     return resultArray
   
