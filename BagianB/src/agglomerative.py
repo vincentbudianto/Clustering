@@ -11,13 +11,14 @@ class agglomerative:
   # Constructor
   def __init__(self, n_clusters=1, linkage="complete"):
     self.cluster = n_clusters
+    self.linkage = linkage
 
   # Distance function (euclidean)
   def distance(self, data, target):
     return np.sqrt(np.sum((data - target)**2, axis=0))
 
   # Get maximum distance from each cluster (complete link)
-  def clusterDistance(self, data, target):
+  def completeLingkageDistance(self, data, target):
     maxDistance = 0
     for i in range(len(data)):
       for j in range(len(target)):
@@ -25,6 +26,16 @@ class agglomerative:
         if (currDistance > maxDistance):
           maxDistance = currDistance
     return maxDistance
+
+  # Get the minimum distance from each cluster (single link)
+  def singleLinkageDistance(self, data, target):
+    minDistance = 0
+    for i in range(len(data)):
+      for j in range(len(target)):
+        currDistance = self.distance(data[i], target[j])
+        if (currDistance < minDistance):
+          minDistance = currDistance
+    return minDistance
 
   # Distance function (euclidean)
   def createDistanceMatrix(self, data):
@@ -34,7 +45,10 @@ class agglomerative:
       for j in range(i):
         tempArray.append(0)
       for j in range(i, len(data)):
-        tempArray.append(self.clusterDistance(data[i], data[j]))
+        if (j == i):
+          tempArray.append(0)
+        else:
+          tempArray.append(self.completeLingkageDistance(data[i], data[j]))
       resultArray.append(tempArray)
     return resultArray
   
