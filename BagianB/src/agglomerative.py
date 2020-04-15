@@ -48,26 +48,25 @@ class agglomerative:
     totalDistance = 0
     for i in range(len(data)):
       for j in range(len(target)):
-        print(self.distance(data[i], target[j]))
         totalDistance += self.distance(data[i], target[j])
     
-    return totalDistance / (len(data) * len(target))
+    return (totalDistance / (len(data) * len(target)))
   
   # Average group linkage
   def averageGroupLinkageDistance(self, data, target):
-    totalDistanceI = data[0]
+    totalDistanceI = cp.copy(data[0])
     for i in range(1, len(data)):
       for j in range(len(data[i])):
         totalDistanceI[j] += data[i][j]
     for i in range(len(data[0])):
       totalDistanceI[i] /= len(data)
     
-    totalDistanceJ = target[0]
+    totalDistanceJ = cp.copy(target[0])
     for i in range(1, len(target)):
       for j in range(len(target[i])):
         totalDistanceJ[j] += target[i][j]
     for i in range(len(target[0])):
-      totalDistanceI[i] /= len(target)
+      totalDistanceJ[i] /= len(target)
       
     return self.distance(totalDistanceI, totalDistanceJ)
 
@@ -145,5 +144,7 @@ class agglomerative:
     for i in range(self.cluster):
       for j in range(len(self.centroids[i])):
         self.resultLabels[self.labels[i][j]] = i
+    
+    
     
     return self
