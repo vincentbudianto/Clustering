@@ -34,6 +34,7 @@ class kmeans:
 		iteration = 0
 		previous_and_current_label_differs = True
 		iteration_less_than_max_iteration = True
+
 		while (previous_and_current_label_differs) and (iteration_less_than_max_iteration) :
 			self.prev_label = self.labels
 			self.labels = self.predict(data)
